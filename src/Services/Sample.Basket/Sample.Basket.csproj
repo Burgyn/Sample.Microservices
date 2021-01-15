@@ -28,5 +28,9 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Libs\Sample.Basket.Domain\Sample.Basket.Domain.csproj" />
+  </ItemGroup>
+
 
 </Project>

@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Sample.Basket\Sample.Basket.csproj" />
-    <ProjectReference Include="..\..\Services\Sample.Users\Sample.Users.csproj" />
+    <ProjectReference Include="..\..\Libs\Sample.Basket.Domain\Sample.Basket.Domain.csproj" />
+    <ProjectReference Include="..\..\Libs\Sample.Users.Domain\Sample.Users.Domain.csproj" />
   </ItemGroup>
 
 

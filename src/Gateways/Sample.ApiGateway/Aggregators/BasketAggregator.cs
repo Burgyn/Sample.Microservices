@@ -37,22 +37,22 @@ namespace Sample.ApiGateway.Aggregators
                 "OK");
         }
 
-    }
-    public class Response
-    {
-        /// <summary>
-        /// Gets or sets the buyer.
-        /// </summary>
-        public User Buyer { get; set; }
+        public class Response
+        {
+            /// <summary>
+            /// Gets or sets the buyer.
+            /// </summary>
+            public User Buyer { get; set; }
 
-        /// <summary>
-        /// Gets or sets the total price.
-        /// </summary>
-        public decimal TotalPrice { get; set; }
+            /// <summary>
+            /// Gets or sets the total price.
+            /// </summary>
+            public decimal TotalPrice { get; set; }
 
-        /// <summary>
-        /// Gets or sets the items.
-        /// </summary>
-        public IEnumerable<BasketItem> Items { get; set; }
+            /// <summary>
+            /// Gets or sets the items.
+            /// </summary>
+            public IEnumerable<BasketItem> Items { get; set; }
+        }
     }
 }
