@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 namespace Sample.Users.Domain
 {
+    /// <summary>
+    /// Interface which describe users repository.
+    /// </summary>
     public interface IUsersRepository
     {
         IEnumerable<User> GetAll();
