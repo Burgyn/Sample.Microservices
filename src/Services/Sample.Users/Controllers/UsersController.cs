@@ -22,13 +22,6 @@ namespace Sample.Users.Controllers
         }
 
         /// <summary>
-        /// Gets all users.
-        /// </summary>
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<User>))]
-        public IEnumerable<User> Get() => _repository.GetAll();
-
-        /// <summary>
         /// Gets the user by id.
         /// </summary>
         /// <param name="id">The identifier.</param>
@@ -36,7 +29,7 @@ namespace Sample.Users.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public User Get(int id) => _repository.Get(id);
+        public async Task<User> Get(int id) => await _repository.GetAsync(id);
 
         /// <summary>
         /// Creates the specified user.

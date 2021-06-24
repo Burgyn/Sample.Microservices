@@ -1,9 +1,12 @@
-﻿namespace Sample.Users.Domain
+﻿using MMLib.ToString.Abstraction;
+
+namespace Sample.Users.Domain
 {
     /// <summary>
     /// User
     /// </summary>
-    public class User
+    [ToString]
+    public partial class User
     {
         /// <summary>
         /// Gets or sets the identifier.

@@ -28,7 +28,7 @@ namespace Sample.Basket.Infrastructure
         {
             if (!_database.Query<Domain.Basket>().Any())
             {
-                var personFaker = new AutoFaker<BasketItem>()
+                var basketItemFaker = new AutoFaker<BasketItem>()
                     .RuleFor(fake => fake.UnitPrice, fake => fake.Random.Int(5, 100))
                     .RuleFor(fake => fake.Quantity, fake => fake.Random.Int(1, 10));
 
@@ -36,7 +36,7 @@ namespace Sample.Basket.Infrastructure
                 var baskets = Enumerable.Range(1, 11).Select(r => new Domain.Basket()
                 {
                     BuyerId = r,
-                    Items = personFaker.Generate(random.Next(3, 10))
+                    Items = basketItemFaker.Generate(random.Next(3, 10))
                 });
                 _database.BulkAddAsync(baskets);
             }

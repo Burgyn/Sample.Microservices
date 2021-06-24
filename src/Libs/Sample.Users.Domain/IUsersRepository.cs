@@ -8,9 +8,7 @@ namespace Sample.Users.Domain
     /// </summary>
     public interface IUsersRepository
     {
-        IEnumerable<User> GetAll();
-
-        User Get(int id);
+        Task<User> GetAsync(int id);
 
         Task CreateAsync(User user);
 

@@ -59,37 +59,5 @@ namespace Sample.Users.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [
-        ///  {
-        ///    &quot;Id&quot;: 1,
-        ///    &quot;FirstName&quot;: &quot;Milan&quot;,
-        ///    &quot;LastName&quot;: &quot;Battistini&quot;,
-        ///    &quot;Address&quot;: &quot;2770 Daffodil Lane; Springfield&quot;
-        ///  },
-        ///  {
-        ///    &quot;Id&quot;: 2,
-        ///    &quot;FirstName&quot;: &quot;Aaron&quot;,
-        ///    &quot;LastName&quot;: &quot;Braulio&quot;,
-        ///    &quot;Address&quot;: &quot;929 Laurel; Lee Eagan&quot;
-        ///  },
-        ///  {
-        ///    &quot;Id&quot;: 3,
-        ///    &quot;FirstName&quot;: &quot;Brittanie&quot;,
-        ///    &quot;LastName&quot;: &quot;Finkleisten&quot;,
-        ///    &quot;Address&quot;: &quot;158 Cedar Street; El Dorado&quot;
-        ///  },
-        ///  {
-        ///    &quot;Id&quot;: 4,
-        ///    &quot;FirstName&quot;: &quot;Debora&quot;,
-        ///    &quot;LastName&quot;: &quot;Hoppenrath&quot;,
-        ///    &quot;Address&quot;: &quot;4325 Hedge Street; Rochelle  [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string Users {
-            get {
-                return ResourceManager.GetString("Users", resourceCulture);
-            }
-        }
     }
 }

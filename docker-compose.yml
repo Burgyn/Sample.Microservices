@@ -29,7 +29,7 @@ services:
   storage-seed:
     image: krossk/storage-seed
     environment:
-      - TABLES=Table1,Table2
+      - TABLES=Users
       - HOST_NAME=storage
     depends_on:
       - storage
@@ -41,6 +41,6 @@ services:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=str0ngP@ass
       - MSSQL_PID=Developer
-      - DATABASES=Users,Basket
+      - DATABASES=Basket
     ports:
       - 1434:1433

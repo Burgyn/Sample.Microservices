@@ -23,13 +23,18 @@ namespace Sample.Users
         {
             services.AddSwaggerDocumentation(Configuration);
 
-            services.AddSingleton<IUsersRepository, DummyRepository>();
+            services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddControllers();
+            services.AddScoped<DummyDataInitializer>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DummyDataInitializer dataInitializer)
         {
+            if (Configuration.GetValue<bool>("IsDocker"))
+            {
+                dataInitializer.Init();
+            }
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
