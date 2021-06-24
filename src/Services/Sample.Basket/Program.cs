@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Kros.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
 
 namespace Sample.Basket
 {
@@ -18,6 +16,19 @@ namespace Sample.Basket
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    var variables = new Dictionary<string, string>() { {"IsDocker", "false" } };
+                    string isDocker = Environment.GetEnvironmentVariable("IS_DOCKER_RUN");
+                    if (!isDocker.IsNullOrWhiteSpace() && bool.TryParse(isDocker, out bool isDockerRun) && isDockerRun)
+                    {
+                        config.AddJsonFile("appsettings.Docker.json",
+                                        optional: true,
+                                        reloadOnChange: true);
+                        variables["IsDocker"] = "true";
+                    }
+                    config.AddInMemoryCollection(variables);
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>()

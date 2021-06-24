@@ -1,14 +1,14 @@
-﻿using System;
+﻿using MMLib.ToString.Abstraction;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Sample.Basket.Domain
 {
     /// <summary>
     /// User
     /// </summary>
-    public class Basket
+    [ToString]
+    public partial class Basket
     {
         public int BuyerId { get; set; }
 

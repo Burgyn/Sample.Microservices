@@ -59,14 +59,5 @@ namespace Sample.Basket.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to .
-        /// </summary>
-        internal static string Baskets {
-            get {
-                return ResourceManager.GetString("Baskets", resourceCulture);
-            }
-        }
     }
 }

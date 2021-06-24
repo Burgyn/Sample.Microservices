@@ -1,3 +1,5 @@
+using Kros.KORM;
+using Kros.KORM.Extensions.Asp;
 using Kros.Swagger.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -21,14 +23,25 @@ namespace Sample.Basket
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSwaggerDocumentation(Configuration);
+            services.AddKorm(Configuration)
+                .UseDatabaseConfiguration<DatabaseConfiguration>()
+                .AddKormMigrations()
+                .Migrate();
 
-            services.AddSingleton<IBasketRepository, DummyRepository>();
+
+            services.AddScoped<IBasketRepository, BasketRepository>();
+            services.AddScoped<DummyDataInitializer>();
             services.AddControllers();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DummyDataInitializer dataInitializer)
         {
+            if (Configuration.GetValue<bool>("IsDocker"))
+            {
+                dataInitializer.Init();
+            }
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

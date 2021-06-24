@@ -3,6 +3,7 @@ WORKDIR /app
 EXPOSE 5300
 
 ENV ASPNETCORE_URLS=http://+:5300
+ENV IS_DOCKER_RUN=TRUE
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src

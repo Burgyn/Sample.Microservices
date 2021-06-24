@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using MMLib.ToString.Abstraction;
 
 namespace Sample.Basket.Domain
 {
-    public class BasketItem
+    [ToString]
+    public partial class BasketItem
     {
         public string ProductName { get; set; }
         public decimal UnitPrice { get; set; }
