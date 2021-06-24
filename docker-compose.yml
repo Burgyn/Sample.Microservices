@@ -8,16 +8,36 @@ services:
       dockerfile: src/Gateways/Sample.ApiGateway/Dockerfile
     ports:
       - 5000:5000
+
   users:
     image: MMLib.Microservices/users
     build:
       context: .
       dockerfile: src/Services/Sample.Users/Dockerfile
+
   basket:
     image: MMLib.Microservices/basket
     build:
       context: .
       dockerfile: src/Services/Sample.Basket/Dockerfile
+    depends_on:
+      - database
+
+  ordering:
+    image: MMLib.Microservices/ordering
+    build:
+      context: .
+      dockerfile: src/Services/Sample.Ordering/Dockerfile
+    depends_on:
+      - database
+
+  catalog:
+    image: MMLib.Microservices/catalog
+    build:
+      context: .
+      dockerfile: src/Services/Sample.Catalog/Dockerfile
+    depends_on:
+      - database
 
   storage:
     image: mcr.microsoft.com/azure-storage/azurite
@@ -41,6 +61,6 @@ services:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=str0ngP@ass
       - MSSQL_PID=Developer
-      - DATABASES=Basket
+      - DATABASES=Basket,Catalog,Orders
     ports:
       - 1434:1433
