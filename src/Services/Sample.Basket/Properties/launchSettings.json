@@ -1,14 +1,17 @@
-﻿{
+{
   "$schema": "http://json.schemastore.org/launchsettings.json",
   "profiles": {
     "Sample.Basket": {
       "commandName": "Project",
-      "launchBrowser": false,
       "launchUrl": "weatherforecast",
-      "applicationUrl": "http://localhost:5300",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "http://localhost:5300"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "publishAllPorts": true
     }
   }
 }

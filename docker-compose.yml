@@ -1,0 +1,46 @@
+version: '3.4'
+
+services:
+  gateway:
+    image: MMLib.Microservices/gateway
+    build:
+      context: .
+      dockerfile: src/Gateways/Sample.ApiGateway/Dockerfile
+    ports:
+      - 5000:5000
+  users:
+    image: MMLib.Microservices/users
+    build:
+      context: .
+      dockerfile: src/Services/Sample.Users/Dockerfile
+  basket:
+    image: MMLib.Microservices/basket
+    build:
+      context: .
+      dockerfile: src/Services/Sample.Basket/Dockerfile
+
+  storage:
+    image: mcr.microsoft.com/azure-storage/azurite
+    restart: on-failure
+    ports:
+      - 10001:10001 # blob storage
+      - 10002:10002 # table storage
+
+  storage-seed:
+    image: krossk/storage-seed
+    environment:
+      - TABLES=Table1,Table2
+      - HOST_NAME=storage
+    depends_on:
+      - storage
+
+  database:
+    image: krossk/mssql
+    restart: on-failure
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=str0ngP@ass
+      - MSSQL_PID=Developer
+      - DATABASES=Users,Basket
+    ports:
+      - 1434:1433
