@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using MMLib.ToString.Abstraction;
 
 namespace Sample.Ordering.Domain
 {
-    public class OrderItem
+    [ToString]
+    public partial class OrderItem
     {
         public string ProductName { get; set; }
         public decimal UnitPrice { get; set; }

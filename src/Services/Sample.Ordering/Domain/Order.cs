@@ -1,14 +1,14 @@
-﻿using System;
+﻿using MMLib.ToString.Abstraction;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Sample.Ordering.Domain
 {
     /// <summary>
     /// User
     /// </summary>
-    public class Order
+    [ToString]
+    public partial class Order
     {
         public int Id { get; set; }
 
