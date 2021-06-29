@@ -21,7 +21,7 @@ namespace Sample.Basket.Controllers
         /// <param name="buyerId">The identifier.</param>
         /// <returns></returns>
         [HttpGet("{buyerId}")]
-        public Domain.Basket Get(int buyerId) => _repository.Get(buyerId);
+        public Task<Domain.Basket> Get(int buyerId) => _repository.GetAsync(buyerId);
 
         /// <summary>
         /// Creates the user basket.
@@ -33,21 +33,6 @@ namespace Sample.Basket.Controllers
             await _repository.CreateAsync(basket);
 
             return Created(string.Empty, new { });
-        }
-
-        /// <summary>
-        /// Update the user basket.
-        /// </summary>
-        /// <param name="buyerId">The user identifier.</param>
-        /// <param name="basket">The basket.</param>
-        [HttpPut("{buyerId}")]
-        public async Task<ActionResult> Update(int buyerId, Domain.Basket basket)
-        {
-            basket.BuyerId = buyerId;
-
-            await _repository.UpdateAsync(basket);
-
-            return Ok();
         }
 
         /// <summary>

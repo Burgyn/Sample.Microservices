@@ -1,6 +1,7 @@
 ﻿using AutoBogus;
 using AutoBogus.Conventions;
-using Kros.KORM;
+using Microsoft.Extensions.Caching.Distributed;
+using Sample.Basket.Base;
 using Sample.Basket.Domain;
 using System;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Sample.Basket.Infrastructure
 {
     public class DummyDataInitializer
     {
-        private readonly IDatabase _database;
+        private readonly IDistributedCache _cache;
 
         static DummyDataInitializer()
         {
@@ -19,14 +20,14 @@ namespace Sample.Basket.Infrastructure
             });
         }
 
-        public DummyDataInitializer(IDatabase database)
+        public DummyDataInitializer(IDistributedCache cache)
         {
-            _database = database;
+            _cache = cache;
         }
 
         public void Init()
         {
-            if (!_database.Query<Domain.Basket>().Any())
+            if (_cache.GetString("1") is null)
             {
                 var basketItemFaker = new AutoFaker<BasketItem>()
                     .RuleFor(fake => fake.UnitPrice, fake => fake.Random.Int(5, 100))
@@ -38,7 +39,13 @@ namespace Sample.Basket.Infrastructure
                     BuyerId = r,
                     Items = basketItemFaker.Generate(random.Next(3, 10))
                 });
-                _database.BulkAddAsync(baskets);
+                foreach (var basket in baskets)
+                {
+                    _ = _cache.SetAsync(basket.BuyerId.ToString(), basket, new DistributedCacheEntryOptions()
+                    {
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)
+                    });
+                }
             }
         }
     }

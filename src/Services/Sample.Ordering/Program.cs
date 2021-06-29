@@ -28,6 +28,7 @@ namespace Sample.Users
                         variables["IsDocker"] = "true";
                     }
                     config.AddInMemoryCollection(variables);
+                    config.AddEnvironmentVariables();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   gateway:
-    image: MMLib.Microservices/gateway
+    image: MMLib.Microservices/gateway:dev
     build:
       context: .
       dockerfile: src/Gateways/Sample.ApiGateway/Dockerfile
@@ -10,21 +10,23 @@ services:
       - 5000:5000
 
   users:
-    image: MMLib.Microservices/users
+    image: MMLib.Microservices/users:dev
     build:
       context: .
       dockerfile: src/Services/Sample.Users/Dockerfile
+    depends_on:
+      - storage-seed
 
   basket:
-    image: MMLib.Microservices/basket
+    image: MMLib.Microservices/basket:dev
     build:
       context: .
       dockerfile: src/Services/Sample.Basket/Dockerfile
     depends_on:
-      - database
+      - redis
 
   ordering:
-    image: MMLib.Microservices/ordering
+    image: MMLib.Microservices/ordering:dev
     build:
       context: .
       dockerfile: src/Services/Sample.Ordering/Dockerfile
@@ -32,7 +34,7 @@ services:
       - database
 
   catalog:
-    image: MMLib.Microservices/catalog
+    image: MMLib.Microservices/catalog:dev
     build:
       context: .
       dockerfile: src/Services/Sample.Catalog/Dockerfile
@@ -61,6 +63,10 @@ services:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=str0ngP@ass
       - MSSQL_PID=Developer
-      - DATABASES=Basket,Catalog,Orders
+      - DATABASES=Catalog,Orders
     ports:
       - 1434:1433
+
+  redis:
+    image: redis
+    restart: on-failure

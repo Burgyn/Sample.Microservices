@@ -32,6 +32,7 @@ namespace Sample.Catalog
                         variables["IsDocker"] = "true";
                     }
                     config.AddInMemoryCollection(variables);
+                    config.AddEnvironmentVariables();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

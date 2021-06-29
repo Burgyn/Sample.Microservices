@@ -5,13 +5,9 @@ namespace Sample.Basket.Domain
 {
     public interface IBasketRepository
     {
-        IEnumerable<Basket> GetAll();
-
-        Basket Get(int id);
+        Task<Basket> GetAsync(int id);
 
         Task CreateAsync(Basket user);
-
-        Task UpdateAsync(Basket user);
 
         Task DeleteAsync(int id);
     }

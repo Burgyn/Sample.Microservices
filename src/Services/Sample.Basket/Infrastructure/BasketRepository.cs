@@ -1,33 +1,30 @@
-﻿using Kros.KORM;
+﻿using Microsoft.Extensions.Caching.Distributed;
+using Sample.Basket.Base;
 using Sample.Basket.Domain;
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using System.Threading.Tasks;
 
 namespace Sample.Basket.Infrastructure
 {
     public class BasketRepository : IBasketRepository
     {
-        private readonly IDatabase _database;
+        private readonly IDistributedCache _cache;
 
-        public BasketRepository(IDatabase database)
+        public BasketRepository(IDistributedCache cache)
         {
-            _database = database;
+            _cache = cache;
         }
 
         public Task CreateAsync(Domain.Basket basket)
-            => _database.AddAsync(basket);
+            => _cache.SetAsync(basket.BuyerId.ToString(), basket, new DistributedCacheEntryOptions()
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(10)
+            });
 
         public Task DeleteAsync(int id)
-            => _database.DeleteAsync<Domain.Basket>(id);
+            => _cache.RemoveAsync(id.ToString());
 
-        public Task UpdateAsync(Domain.Basket basket)
-            => _database.UpsertAsync(basket);
-
-        public Domain.Basket Get(int id)
-            => _database.Query<Domain.Basket>().FirstOrDefault(p => p.BuyerId == id);
-
-        public IEnumerable<Domain.Basket> GetAll()
-            => _database.Query<Domain.Basket>();
+        public Task<Domain.Basket> GetAsync(int id)
+            => _cache.GetAsync<Domain.Basket>(id.ToString());
     }
 }
