@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net5</TargetFramework>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..\..</DockerfileContext>
+    <DockerfileRunArguments>--network=samplemicroservices_default --hostname=gateway</DockerfileRunArguments>
   </PropertyGroup>
 
   <ItemGroup>

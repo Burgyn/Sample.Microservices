@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   gateway:
-    image: MMLib.Microservices/gateway:dev
+    image: MMLib.Microservices/gateway
     build:
       context: .
       dockerfile: src/Gateways/Sample.ApiGateway/Dockerfile
@@ -10,7 +10,7 @@ services:
       - 5000:5000
 
   users:
-    image: MMLib.Microservices/users:dev
+    image: MMLib.Microservices/users
     build:
       context: .
       dockerfile: src/Services/Sample.Users/Dockerfile
@@ -18,7 +18,7 @@ services:
       - storage-seed
 
   basket:
-    image: MMLib.Microservices/basket:dev
+    image: MMLib.Microservices/basket
     build:
       context: .
       dockerfile: src/Services/Sample.Basket/Dockerfile
@@ -26,7 +26,7 @@ services:
       - redis
 
   ordering:
-    image: MMLib.Microservices/ordering:dev
+    image: MMLib.Microservices/ordering
     build:
       context: .
       dockerfile: src/Services/Sample.Ordering/Dockerfile
@@ -34,7 +34,7 @@ services:
       - database
 
   catalog:
-    image: MMLib.Microservices/catalog:dev
+    image: MMLib.Microservices/catalog
     build:
       context: .
       dockerfile: src/Services/Sample.Catalog/Dockerfile
