@@ -42,4 +42,4 @@ jobs:
       
       - name: Nuke push docker images to registry
         shell: powershell
-        run: ./build.ps1 --target DockerPublish --Configuration Release --verbosity verbose
+        run: ./build.ps1 --target DockerPush --Configuration Release --verbosity verbose
