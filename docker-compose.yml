@@ -2,27 +2,27 @@ version: '3.4'
 
 services:
   gateway:
-    image: MMLib.Microservices/gateway
+    image: mmlib.azurecr.io/mmlib.microservices/gateway:${SERVICES_TAG}
     ports:
       - 5000:5000
 
   users:
-    image: MMLib.Microservices/users
+    image: mmlib.azurecr.io/mmlib.microservices/users:${SERVICES_TAG}
     depends_on:
       - storage-seed
 
   basket:
-    image: MMLib.Microservices/basket
+    image: mmlib.azurecr.io/mmlib.microservices/basket:${SERVICES_TAG}
     depends_on:
       - redis
 
   ordering:
-    image: MMLib.Microservices/ordering
+    image: mmlib.azurecr.io/mmlib.microservices/ordering:${SERVICES_TAG}
     depends_on:
       - database
 
   catalog:
-    image: MMLib.Microservices/catalog
+    image: mmlib.azurecr.io/mmlib.microservices/catalog:${SERVICES_TAG}
     depends_on:
       - database
 

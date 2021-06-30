@@ -35,7 +35,10 @@ class Build : NukeBuild
     [Solution] readonly Solution Solution;
 
     [Parameter("Which docker image should be build")]
-    readonly string ProjectToBuild = null;
+    readonly string CurrentProject = null;
+
+    [Parameter("Which docker registry should be used for publish")]
+    readonly string DockerRegistry = "mmlib.azurecr.io";
 
     string Tag => Configuration == Configuration.Release ? "latest" : "dev";
 
@@ -66,18 +69,41 @@ class Build : NukeBuild
         {
             OutputDirectory.GlobFiles("**/Dockerfile").ForEach(f =>
             {
-                if (ProjectToBuild is null || f.ToString().Contains(ProjectToBuild, StringComparison.OrdinalIgnoreCase))
+                if (CurrentProject is null || f.ToString().Contains(CurrentProject, StringComparison.OrdinalIgnoreCase))
                 {
                     var serviceName = Path.GetFileName(f.Parent);
                     Logger.Normal($"=== [{serviceName}]: start building docker.");
-                    DockerTasks.DockerBuildxBuild(x => x
+                    DockerTasks.DockerBuild(x => x
                                 .SetPath(".")
                                 .SetFile(f)
-                                .SetTag(GetImageName(GetProjectName(f.Parent)))
-                            );
+                                .SetTag(GetImageName(GetProjectName(f.Parent))));
                 }
             });
         });
+
+    Target DockerPush => _ => _
+        .Executes(() =>
+        {
+            OutputDirectory.GlobFiles("**/Dockerfile").ForEach(f =>
+            {
+                if (CurrentProject is null || f.ToString().Contains(CurrentProject, StringComparison.OrdinalIgnoreCase))
+                {
+                    var serviceName = Path.GetFileName(f.Parent);
+                    Logger.Normal($"=== [{serviceName}]: start publish docker image to registry.");
+                    PushImage(GetImageName(GetProjectName(f.Parent)));
+                }
+            });
+        });
+
+    private void PushImage(string name)
+    {
+        var target = $"{DockerRegistry}/{name.ToLower()}";
+        DockerTasks.DockerImageTag(x => x
+            .SetSourceImage(name)
+            .SetTargetImage(target));
+
+        DockerTasks.DockerImagePush(x => x.SetName(target));
+    }
 
     Target Compile => _ => _
         .DependsOn(Restore)
@@ -116,7 +142,6 @@ class Build : NukeBuild
             .Replace("{PROJECT}", serviceName);
 
         File.WriteAllText(OutputDirectory / serviceName / dockerfile, dockerFile, Encoding.UTF8);
-        //CopyFile(BuildDirectory / dockerfile, OutputDirectory / serviceName / dockerfile, FileExistsPolicy.Overwrite);
     }
 
     private string GetImageName(string image)

@@ -18,6 +18,14 @@
           "type": "boolean",
           "description": "Indicates to continue a previously failed build attempt"
         },
+        "CurrentProject": {
+          "type": "string",
+          "description": "Which docker image should be build"
+        },
+        "DockerRegistry": {
+          "type": "string",
+          "description": "Which docker registry should be used for publish"
+        },
         "Help": {
           "type": "boolean",
           "description": "Shows the help text for this build assembly"
@@ -61,10 +69,6 @@
             "type": "string"
           }
         },
-        "ProjectToBuild": {
-          "type": "string",
-          "description": "Which docker image should be build"
-        },
         "Root": {
           "type": "string",
           "description": "Root directory during build execution"
@@ -78,6 +82,7 @@
               "Clean",
               "Compile",
               "DockerBuild",
+              "DockerPush",
               "Publish",
               "Restore"
             ]
@@ -96,6 +101,7 @@
               "Clean",
               "Compile",
               "DockerBuild",
+              "DockerPush",
               "Publish",
               "Restore"
             ]
