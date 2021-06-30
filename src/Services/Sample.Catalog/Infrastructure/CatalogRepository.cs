@@ -25,7 +25,7 @@ namespace Sample.Catalog.Infrastructure
             => _database.EditAsync(product);
 
         public Product Get(int id)
-            => _database.Query<Product>().FirstOrDefault();
+            => _database.Query<Product>().FirstOrDefault(p => p.Id == id);
 
         public IEnumerable<Product> GetAll()
             => _database.Query<Product>();

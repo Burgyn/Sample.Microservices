@@ -3,41 +3,26 @@ version: '3.4'
 services:
   gateway:
     image: MMLib.Microservices/gateway
-    build:
-      context: .
-      dockerfile: src/Gateways/Sample.ApiGateway/Dockerfile
     ports:
       - 5000:5000
 
   users:
     image: MMLib.Microservices/users
-    build:
-      context: .
-      dockerfile: src/Services/Sample.Users/Dockerfile
     depends_on:
       - storage-seed
 
   basket:
     image: MMLib.Microservices/basket
-    build:
-      context: .
-      dockerfile: src/Services/Sample.Basket/Dockerfile
     depends_on:
       - redis
 
   ordering:
     image: MMLib.Microservices/ordering
-    build:
-      context: .
-      dockerfile: src/Services/Sample.Ordering/Dockerfile
     depends_on:
       - database
 
   catalog:
     image: MMLib.Microservices/catalog
-    build:
-      context: .
-      dockerfile: src/Services/Sample.Catalog/Dockerfile
     depends_on:
       - database
 
