@@ -25,10 +25,6 @@ jobs:
         with:
           dotnet-version: 5.0.300
 
-      - name: Nuke publish
-        shell: powershell
-        run: ./build.ps1 --target Compile+DockerBuild+ComposeUp+IntegrationTests+DockerRm --Configuration Release --verbosity verbose --ServicesTag ${{ github.run_id }}
-      
       - name: Nuke build docker images
         shell: powershell
         run: ./build.ps1 --target DockerBuild --Configuration Release --verbosity verbose

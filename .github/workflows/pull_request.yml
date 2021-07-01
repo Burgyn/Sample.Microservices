@@ -11,5 +11,7 @@ jobs:
       uses: actions/setup-dotnet@v1.7.2
       with:
         dotnet-version: 5.0.101
-    - name: Build
-      run: dotnet build ./Sample.Microservices.sln --configuration Release
+
+    - name: Nuke integration tests
+      shell: powershell
+      run: ./build.ps1 --target Compile+DockerBuild+ComposeUp+IntegrationTests+DockerRm --Configuration Release --verbosity verbose --ServicesTag ${{ github.run_id }}
