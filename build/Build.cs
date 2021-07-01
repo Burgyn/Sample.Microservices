@@ -133,7 +133,7 @@ class Build : NukeBuild
     }
 
     private string GetImageName(string image)
-        => $"MMLib.Microservices/{image}:{Tag}";
+        => $"microservices/{image}:{Tag}";
 
     private static string GetProjectName(AbsolutePath projectPath)
         => Path.GetFileName(projectPath)
