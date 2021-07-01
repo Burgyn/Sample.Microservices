@@ -350,3 +350,5 @@ MigrationBackup/
 .ionide/
 output
 dev.env
+temp.env
+.nuke/temp/execution-plan.html

@@ -46,10 +46,10 @@ namespace Sample.Catalog
                 .Handle<SqlException>()
                 .OrInner<SocketException>()
                 .OrInner<SqlException>()
-                .WaitAndRetry(40, retryAttempt =>
+                .WaitAndRetry(10, retryAttempt =>
                 {
                     Console.WriteLine($"=== Migrate retry attempt: {retryAttempt}");
-                    return TimeSpan.FromSeconds(8);
+                    return TimeSpan.FromSeconds(2);
                 });
 
             policy.Execute(kormBuilder.Migrate);

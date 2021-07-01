@@ -22,10 +22,6 @@
           "type": "string",
           "description": "Which docker image should be build"
         },
-        "DockerRegistry": {
-          "type": "string",
-          "description": "Which docker registry should be used for publish"
-        },
         "Help": {
           "type": "boolean",
           "description": "Shows the help text for this build assembly"
@@ -73,6 +69,10 @@
           "type": "string",
           "description": "Root directory during build execution"
         },
+        "ServicesTag": {
+          "type": "string",
+          "description": "Services tag"
+        },
         "Skip": {
           "type": "array",
           "description": "List of targets to be skipped. Empty list skips all dependencies",
@@ -81,8 +81,13 @@
             "enum": [
               "Clean",
               "Compile",
+              "ComposeDown",
+              "ComposeUp",
+              "CreateTempEnv",
               "DockerBuild",
               "DockerPush",
+              "DockerRm",
+              "IntegrationTests",
               "Publish",
               "Restore"
             ]
@@ -100,8 +105,13 @@
             "enum": [
               "Clean",
               "Compile",
+              "ComposeDown",
+              "ComposeUp",
+              "CreateTempEnv",
               "DockerBuild",
               "DockerPush",
+              "DockerRm",
+              "IntegrationTests",
               "Publish",
               "Restore"
             ]

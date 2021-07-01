@@ -27,7 +27,7 @@ jobs:
 
       - name: Nuke publish
         shell: powershell
-        run: ./build.ps1 --target Publish --Configuration Release --verbosity verbose
+        run: ./build.ps1 --target Compile+DockerBuild+ComposeUp+IntegrationTests+DockerRm --Configuration Release --verbosity verbose --ServicesTag ${{ github.run_id }}
       
       - name: Nuke build docker images
         shell: powershell
