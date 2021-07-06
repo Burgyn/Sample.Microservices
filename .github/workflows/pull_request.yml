@@ -12,6 +12,11 @@ jobs:
       with:
         dotnet-version: 5.0.101
 
+    - name: Set up node
+      uses: actions/setup-node@v1
+      with:
+          node-version: '12.x'
+
     - name: Install newman
       run: |
        npm install -g newman
