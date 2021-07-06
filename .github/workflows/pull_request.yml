@@ -13,5 +13,4 @@ jobs:
         dotnet-version: 5.0.101
 
     - name: Nuke integration tests
-      shell: powershell
       run: ./build.sh --target Publish+DockerBuild+ComposeUp+IntegrationTests+DockerRm --Configuration Release --UseRegistry false --verbosity verbose --ServicesTag ${{ github.run_id }}
