@@ -157,13 +157,10 @@ class Build : NukeBuild
             WaitForSqlConnection();
 
             Logger.Normal("=== Start running integration tests.");
-            Logger.Normal($"===== testujem {PostmanTests}");
             PostmanTests.GlobFiles("*_collection.json").ForEach((f) =>
             {
-                Logger.Normal($"========= testujem {f}");
                 Newman($"run {f} -e {env}");
             });
-            Logger.Normal($"===== koncim");
         })
         .After(ComposeUp);
 
