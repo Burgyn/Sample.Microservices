@@ -45,6 +45,7 @@ class Build : NukeBuild
     AbsolutePath TempEnvFile => RootDirectory / "temp.env";
     AbsolutePath PostmanTests => RootDirectory / "tests/postman";
     [PathExecutable] readonly Tool Docker;
+    [PathExecutable("docker-compose")] readonly Tool DockerCompose;
     [PathExecutable] readonly Tool Newman;
 
     Target Clean => _ => _
@@ -63,6 +64,7 @@ class Build : NukeBuild
         });
 
     Target DockerBuild => _ => _
+        .After(Compile)
         .Executes(() =>
         {
             OutputDirectory.GlobFiles("**/Dockerfile").ForEach(f =>
@@ -135,7 +137,7 @@ class Build : NukeBuild
         .DependsOn(CreateTempEnv)
         .Executes(() =>
         {
-            Docker($"compose {GetEnvFileOption()} up -d");
+            DockerCompose($"{GetEnvFileOption()} up -d");
         })
         .After(DockerBuild)
         .Before(ComposeDown);
@@ -158,7 +160,7 @@ class Build : NukeBuild
     private static void WaitForSqlConnection()
     {
         Logger.Normal($"=== Wait for sql connecton.");
-        var con = new SqlConnection("Server=localhost,1434;Database=Catalog;User Id=SA;Password=str0ngP@ass;Connect Timeout=10");
+        using var con = new SqlConnection("Server=localhost,1434;Database=Catalog;User Id=SA;Password=str0ngP@ass;Connect Timeout=10");
 
         var policy = Policy
             .Handle<SqlException>()
@@ -167,10 +169,12 @@ class Build : NukeBuild
             .WaitAndRetry(20, retryAttempt =>
             {
                 Logger.Warn($"==== Retry: {retryAttempt}");
-                return TimeSpan.FromSeconds(8);
+                return TimeSpan.FromSeconds(10);
             });
-
         policy.Execute(con.Open);
+
+        using var command = new SqlCommand("SELECT TOP 1 1 FROM __KormMigrationsHistory", con);
+        policy.Execute(() => command.ExecuteScalar());
     }
 
     private string GetEnvFileOption()
