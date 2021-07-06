@@ -1,3 +1,1 @@
 # Sample.Microservices
-
-test
