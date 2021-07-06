@@ -48,9 +48,9 @@ class Build : NukeBuild
     AbsolutePath BuildDirectory => RootDirectory / "build";
     AbsolutePath TempEnvFile => RootDirectory / "temp.env";
     AbsolutePath PostmanTests => RootDirectory / "tests/Postman";
-    [PathExecutable] readonly Tool Docker;
+    [PathExecutable("docker")] readonly Tool Docker;
     [PathExecutable("docker-compose")] readonly Tool DockerCompose;
-    [PathExecutable] readonly Tool Newman;
+    [PathExecutable("newman")] readonly Tool Newman;
 
     Target Clean => _ => _
         .Before(Restore)
