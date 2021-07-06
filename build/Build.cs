@@ -68,9 +68,10 @@ class Build : NukeBuild
         });
 
     Target DockerBuild => _ => _
-        .After(Compile)
+        .After(Publish)
         .Executes(() =>
         {
+            Logger.Normal("=== Start docker build");
             OutputDirectory.GlobFiles("**/Dockerfile").ForEach(f =>
             {
                 if (CurrentProject is null || f.ToString().Contains(CurrentProject, StringComparison.OrdinalIgnoreCase))

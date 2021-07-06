@@ -14,4 +14,4 @@ jobs:
 
     - name: Nuke integration tests
       shell: powershell
-      run: ./build.ps1 --target Compile+DockerBuild+ComposeUp+IntegrationTests+DockerRm --Configuration Release --UseRegistry false --verbosity verbose --ServicesTag ${{ github.run_id }}
+      run: ./build.ps1 --target Publish+DockerBuild+ComposeUp+IntegrationTests+DockerRm --Configuration Release --UseRegistry false --verbosity verbose --ServicesTag ${{ github.run_id }}
