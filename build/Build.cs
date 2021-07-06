@@ -191,7 +191,7 @@ class Build : NukeBuild
         .AssuredAfterFailure()
         .Executes(() =>
         {
-            Docker($"compose down");
+            DockerCompose($"down");
         });
 
     Target DockerRm => _ => _
