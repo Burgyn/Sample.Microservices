@@ -12,5 +12,10 @@ jobs:
       with:
         dotnet-version: 5.0.101
 
+    - name: Install newman
+      run: |
+       npm install -g newman
+       npm install -g newman-reporter-htmlextra
+
     - name: Nuke integration tests
       run: ./build.sh --target Publish+DockerBuild+ComposeUp+IntegrationTests+DockerRm --Configuration Release --UseRegistry false --verbosity verbose --ServicesTag ${{ github.run_id }}
