@@ -47,7 +47,7 @@ class Build : NukeBuild
     AbsolutePath OutputDirectory => RootDirectory / "output";
     AbsolutePath BuildDirectory => RootDirectory / "build";
     AbsolutePath TempEnvFile => RootDirectory / "temp.env";
-    AbsolutePath PostmanTests => RootDirectory / "tests/postman";
+    AbsolutePath PostmanTests => RootDirectory / "tests/Postman";
     [PathExecutable] readonly Tool Docker;
     [PathExecutable("docker-compose")] readonly Tool DockerCompose;
     [PathExecutable] readonly Tool Newman;
