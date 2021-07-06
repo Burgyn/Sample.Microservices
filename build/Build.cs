@@ -32,12 +32,16 @@ class Build : NukeBuild
     [Parameter("Which docker image should be build")]
     readonly string CurrentProject = null;
 
-    string DockerRegistry => (Configuration == Configuration.Release ? "mmlib.azurecr.io/" : string.Empty);
 
     [Parameter("Services tag")]
     readonly string ServicesTag = null;
 
+    [Parameter("Use docker registry")]
+    readonly bool UseRegistry = true;
+
     string Tag => ServicesTag ?? (Configuration == Configuration.Release ? "latest" : "dev");
+
+    string Registry => Configuration == Configuration.Release && UseRegistry ? "mmlib.azurecr.io/" : string.Empty;
 
     AbsolutePath SourceDirectory => RootDirectory / "src";
     AbsolutePath OutputDirectory => RootDirectory / "output";
@@ -97,7 +101,7 @@ class Build : NukeBuild
 
     private void PushImage(string name)
     {
-        var target = $"{DockerRegistry}{name.ToLower()}";
+        var target = $"{Registry}{name.ToLower()}";
         DockerTasks.DockerImagePush(x => x.SetName(target));
     }
 
@@ -127,9 +131,11 @@ class Build : NukeBuild
             Logger.Normal("==== Creating temp.env file.");
             var sb = new StringBuilder();
             sb.AppendLine($"SERVICES_TAG={Tag}")
-                .AppendLine($"REGISTRY={DockerRegistry}");
+                .AppendLine($"REGISTRY={Registry}");
 
             File.WriteAllText(TempEnvFile, sb.ToString());
+            Logger.Normal("=== temp.env file content:");
+            Logger.Normal(sb.ToString());
         })
         .Before(ComposeUp);
 
@@ -225,7 +231,7 @@ class Build : NukeBuild
     }
 
     private string GetImageName(string image)
-        => $"{DockerRegistry}microservices/{image}:{Tag}";
+        => $"{Registry}microservices/{image}:{Tag}";
 
     private static string GetProjectName(AbsolutePath projectPath)
         => Path.GetFileName(projectPath)
