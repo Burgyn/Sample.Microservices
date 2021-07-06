@@ -157,10 +157,13 @@ class Build : NukeBuild
             WaitForSqlConnection();
 
             Logger.Normal("=== Start running integration tests.");
+            Logger.Normal($"===== testujem {PostmanTests}");
             PostmanTests.GlobFiles("*_collection.json").ForEach((f) =>
             {
+                Logger.Normal($"========= testujem {f}");
                 Newman($"run {f} -e {env}");
             });
+            Logger.Normal($"===== koncim");
         })
         .After(ComposeUp);
 
@@ -176,7 +179,7 @@ class Build : NukeBuild
             .WaitAndRetry(20, retryAttempt =>
             {
                 Logger.Warn($"==== Retry: {retryAttempt}");
-                return TimeSpan.FromSeconds(10);
+                return TimeSpan.FromSeconds(5);
             });
         policy.Execute(con.Open);
 
