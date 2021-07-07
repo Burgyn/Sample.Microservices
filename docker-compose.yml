@@ -26,6 +26,14 @@ services:
     depends_on:
       - database
 
+  search:
+    image: ${REGISTRY}microservices/search:${SERVICES_TAG}
+    depends_on:
+      - catalog
+    environment:
+      - AzureWebJobsStorage=UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://host.docker.internal;
+      - Catalog=Server=database,1433;Database=Catalog;User Id=SA;Password=str0ngP@ass;
+
   storage:
     image: mcr.microsoft.com/azure-storage/azurite
     restart: on-failure

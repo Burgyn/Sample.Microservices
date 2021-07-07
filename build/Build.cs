@@ -214,6 +214,7 @@ class Build : NukeBuild
     private void PublishProject(AbsolutePath projectPath)
     {
         const string dockerfile = "Dockerfile";
+        const string dockerfileFunc = "Dockerfile-Func";
         var path = Path.GetDirectoryName(projectPath);
         var serviceName = Path.GetFileNameWithoutExtension(projectPath);
 
@@ -225,11 +226,14 @@ class Build : NukeBuild
                 .SetOutput(OutputDirectory / serviceName)
                 .SetConfiguration(Configuration));
         string dockerFile = File
-            .ReadAllText(BuildDirectory / dockerfile)
+            .ReadAllText(BuildDirectory / (IsAzureFunction(serviceName) ? dockerfileFunc : dockerfile))
             .Replace("{PROJECT}", serviceName);
 
         File.WriteAllText(OutputDirectory / serviceName / dockerfile, dockerFile, Encoding.UTF8);
     }
+
+    private static bool IsAzureFunction(string serviceName)
+        => serviceName.Contains("search", StringComparison.OrdinalIgnoreCase);
 
     private string GetImageName(string image)
         => $"{Registry}microservices/{image}:{Tag}";

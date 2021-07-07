@@ -1,0 +1,8 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://host.docker.internal",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "Catalog": "Server=database,1433;Database=Catalog;User Id=SA;Password=str0ngP@ass;"
+  }
+}
