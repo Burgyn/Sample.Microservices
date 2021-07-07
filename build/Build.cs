@@ -102,8 +102,7 @@ class Build : NukeBuild
 
     private void PushImage(string name)
     {
-        var target = $"{Registry}{name.ToLower()}";
-        DockerTasks.DockerImagePush(x => x.SetName(target));
+        DockerTasks.DockerImagePush(x => x.SetName(name.ToLower()));
     }
 
     Target Compile => _ => _
@@ -236,7 +235,7 @@ class Build : NukeBuild
         => serviceName.Contains("search", StringComparison.OrdinalIgnoreCase);
 
     private string GetImageName(string image)
-        => $"microservices/{image}:{Tag}";
+        => $"{Registry}microservices/{image}:{Tag}";
 
     private static string GetProjectName(AbsolutePath projectPath)
         => Path.GetFileName(projectPath)
