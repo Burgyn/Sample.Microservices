@@ -24,6 +24,11 @@ jobs:
         uses: actions/setup-dotnet@v1.7.2
         with:
           dotnet-version: 5.0.300
+      
+      - name: Setup dotnet (for AZFunctions)
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
 
       - name: Nuke build docker images
         shell: powershell
@@ -35,7 +40,7 @@ jobs:
           login-server: mmlib.azurecr.io
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
-      
+
       - name: Nuke push docker images to registry
         shell: powershell
         run: ./build.ps1 --target DockerPush --Configuration Release --verbosity verbose
