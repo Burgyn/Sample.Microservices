@@ -236,7 +236,7 @@ class Build : NukeBuild
         => serviceName.Contains("search", StringComparison.OrdinalIgnoreCase);
 
     private string GetImageName(string image)
-        => $"{Registry}microservices/{image}:{Tag}";
+        => $"microservices/{image}:{Tag}";
 
     private static string GetProjectName(AbsolutePath projectPath)
         => Path.GetFileName(projectPath)
