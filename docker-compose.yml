@@ -19,12 +19,12 @@ services:
   ordering:
     image: ${REGISTRY}microservices/ordering:${SERVICES_TAG}
     depends_on:
-      - database
+      - sql-db-init
 
   catalog:
     image: ${REGISTRY}microservices/catalog:${SERVICES_TAG}
     depends_on:
-      - database
+      - sql-db-init
 
   search:
     image: ${REGISTRY}microservices/search:${SERVICES_TAG}
@@ -50,15 +50,22 @@ services:
       - storage
 
   database:
-    image: krossk/mssql
-    restart: on-failure
+    image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=str0ngP@ass
       - MSSQL_PID=Developer
-      - DATABASES=Catalog,Orders
     ports:
       - 1434:1433
+
+  sql-db-init:
+    image: krossk/mssql-seed
+    environment:
+      - MSSQL_HOST_NAME=database
+      - SA_PASSWORD=str0ngP@ass
+      - DATABASES=Catalog,Orders
+    depends_on:
+      - database
 
   redis:
     image: redis
