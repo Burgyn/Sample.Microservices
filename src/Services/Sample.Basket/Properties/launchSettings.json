@@ -12,6 +12,10 @@
     "Docker": {
       "commandName": "Docker",
       "publishAllPorts": true
+    },
+    "Bridge to Kubernetes": {
+      "commandName": "AzureDevSpacesLocal",
+      "launchBrowser": true
     }
   }
 }

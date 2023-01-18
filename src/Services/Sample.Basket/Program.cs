@@ -31,8 +31,7 @@ namespace Sample.Basket
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>()
-                        .UseUrls("http://0.0.0.0:5300");
+                    webBuilder.UseStartup<Startup>();
                 });
     }
 }

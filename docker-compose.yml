@@ -4,7 +4,7 @@ services:
   gateway:
     image: ${REGISTRY}microservices/gateway:${SERVICES_TAG}
     ports:
-      - 5000:5000
+      - 5000:80
 
   users:
     image: ${REGISTRY}microservices/users:${SERVICES_TAG}

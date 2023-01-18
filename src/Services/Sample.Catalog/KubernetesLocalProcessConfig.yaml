@@ -1,0 +1,6 @@
+﻿version: 0.1
+env:
+  - name: ASPNETCORE_ENVIRONMENT
+    value: Docker
+  - name: IS_DOCKER_RUN
+    value: TRUE

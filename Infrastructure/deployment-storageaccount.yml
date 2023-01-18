@@ -1,0 +1,52 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storage
+  labels:
+    app: storage
+    type: sql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: storage
+  template:
+    metadata:
+      labels:
+        app: eshop
+        service: storage
+    spec:
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: storage
+          image: mcr.microsoft.com/azure-storage/azurite
+          ports:
+            - containerPort: 10001
+            - containerPort: 10002
+          volumeMounts:
+            - name: storage
+              mountPath: /data
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: mino-disk
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: storage
+  labels:
+    app: eshop
+    service: storage
+spec:
+  type: LoadBalancer
+  ports:
+    - name: blobs
+      port: 10001
+      targetPort: 10001
+    - name: tables
+      port: 10002
+      targetPort: 10002
+  selector:
+    service: storage

@@ -1,0 +1,42 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ordering
+  labels:
+    app: eshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: ordering
+  template:
+    metadata:
+      labels:
+        app: eshop
+        service: ordering
+    spec:
+      containers:
+        - name: ordering
+          image: minoregistry.azurecr.io/microservices/ordering:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          env:
+            - name: ASPNETCORE_URLS
+              value: http://+:80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ordering
+  labels:
+    app: eshop
+    service: ordering
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    service: ordering

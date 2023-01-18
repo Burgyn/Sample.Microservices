@@ -1,0 +1,55 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database
+  labels:
+    app: database
+    type: sql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: database
+  template:
+    metadata:
+      labels:
+        app: eshop
+        service: database
+    spec:
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: database
+          image: mcr.microsoft.com/mssql/server:2019-latest
+          ports:
+            - containerPort: 1433
+          env:
+            - name: MSSQL_PID
+              value: "Developer"
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: SA_PASSWORD
+              value: "str0ngP@ass"
+          volumeMounts:
+            - name: mssqldb
+              mountPath: /var/opt/mssql
+      volumes:
+        - name: mssqldb
+          persistentVolumeClaim:
+            claimName: mino-disk
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database
+  labels:
+    app: eshop
+    service: database
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 1433
+      targetPort: 1433
+  selector:
+    service: database

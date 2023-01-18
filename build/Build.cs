@@ -1,7 +1,12 @@
 using System;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using Azure.Data.Tables;
+using Azure.Data.Tables.Models;
 using Microsoft.Data.SqlClient;
 using Nuke.Common;
 using Nuke.Common.CI;
@@ -11,11 +16,11 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.Docker;
 using Nuke.Common.Tools.DotNet;
-using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Utilities.Collections;
 using Polly;
+using Polly.Retry;
+using Spectre.Console;
 using static Nuke.Common.IO.FileSystemTasks;
-using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 [CheckBuildProjectConfigurations]
@@ -29,19 +34,16 @@ class Build : NukeBuild
 
     [Solution] readonly Solution Solution;
 
-    [Parameter("Which docker image should be build")]
-    readonly string CurrentProject = null;
+    [Parameter("Which docker image should be build")] readonly string CurrentProject = null;
 
 
-    [Parameter("Services tag")]
-    readonly string ServicesTag = null;
+    [Parameter("Services tag")] readonly string ServicesTag = null;
 
-    [Parameter("Use docker registry")]
-    readonly bool UseRegistry = true;
+    [Parameter("Use docker registry")] readonly bool UseRegistry = true;
 
     string Tag => ServicesTag ?? (Configuration == Configuration.Release ? "latest" : "dev");
 
-    string Registry => Configuration == Configuration.Release && UseRegistry ? "mmlib.azurecr.io/" : string.Empty;
+    string Registry => Configuration == Configuration.Release && UseRegistry ? "minoregistry.azurecr.io/" : string.Empty;
 
     AbsolutePath SourceDirectory => RootDirectory / "src";
     AbsolutePath OutputDirectory => RootDirectory / "output";
@@ -51,6 +53,8 @@ class Build : NukeBuild
     [PathExecutable("docker")] readonly Tool Docker;
     [PathExecutable("docker-compose")] readonly Tool DockerCompose;
     [PathExecutable("newman")] readonly Tool Newman;
+    [PathExecutable("az")] readonly Tool Az;
+    [PathExecutable("kubectl")] readonly Tool K8;
 
     Target Clean => _ => _
         .Before(Restore)
@@ -79,9 +83,9 @@ class Build : NukeBuild
                     var serviceName = Path.GetFileName(f.Parent);
                     Logger.Normal($"=== [{serviceName}]: start building docker.");
                     DockerTasks.DockerBuild(x => x
-                                .SetPath(".")
-                                .SetFile(f)
-                                .SetTag(GetImageName(GetProjectName(f.Parent))));
+                        .SetPath(".")
+                        .SetFile(f)
+                        .SetTag(GetImageName(GetProjectName(f.Parent))));
                 }
             });
         });
@@ -166,22 +170,26 @@ class Build : NukeBuild
     private static void WaitForSqlConnection()
     {
         Logger.Normal($"=== Wait for sql connecton.");
-        using var con = new SqlConnection("Server=localhost,1434;Database=Catalog;User Id=SA;Password=str0ngP@ass;Connect Timeout=10");
+        using var con =
+            new SqlConnection("Server=localhost,1434;Database=Catalog;User Id=SA;Password=str0ngP@ass;Connect Timeout=10");
 
-        var policy = Policy
+        var policy = CreateSqlRetryPolicy();
+        policy.Execute(con.Open);
+
+        using var command = new SqlCommand("SELECT TOP 1 1 FROM __KormMigrationsHistory", con);
+        policy.Execute(command.ExecuteScalar);
+    }
+
+    static RetryPolicy CreateSqlRetryPolicy() =>
+        Policy
             .Handle<SqlException>()
             .OrInner<SocketException>()
             .OrInner<SqlException>()
             .WaitAndRetry(20, retryAttempt =>
             {
-                Logger.Warn($"==== Retry: {retryAttempt}");
+                Logger.Warn($"==== SQL retry: {retryAttempt}");
                 return TimeSpan.FromSeconds(5);
             });
-        policy.Execute(con.Open);
-
-        using var command = new SqlCommand("SELECT TOP 1 1 FROM __KormMigrationsHistory", con);
-        policy.Execute(() => command.ExecuteScalar());
-    }
 
     private string GetEnvFileOption()
         => FileExists(TempEnvFile) ? $"--env-file {TempEnvFile}" : string.Empty;
@@ -209,6 +217,99 @@ class Build : NukeBuild
             });
         })
         .After(ComposeDown);
+
+    Target CreateInfra => _ => _
+        .Executes(() =>
+        {
+            string prefix = AnsiConsole.Ask<string>("Enter your unique [green]prefix[/] for AZURE resources:");
+            string rsg = $"{prefix}aks-rsg";
+            var exist = Az($"group exists --name {rsg}");
+
+            if (!bool.TryParse(exist.FirstOrDefault().Text, out var e) || !e)
+            {
+                AnsiConsole.MarkupLine($"Creating resource group [green]{rsg}[/]");
+                Az($"group create --name {rsg} --location westeurope");
+            }
+
+            string clusterName = $"{prefix}aks";
+            string registryName = $"{prefix}registry";
+            Az(
+                @$"deployment group create --resource-group {rsg} --template-file .\Infrastructure\Infrastructure.bicep --parameters resourcePrefix={prefix}");
+            Az($"acr login --name {registryName}");
+            Az($"aks get-credentials --resource-group {rsg} --name {clusterName} --overwrite-existing");
+            Az($"aks update --name {clusterName} --resource-group {rsg} --attach-acr {registryName}");
+            
+            //vytvorenie searchu
+            // nakopirovanie dat do searchu 
+            //  kubectl exec search-fdb679fb-dmzsq -- sh -c ' mkdir -p /srv/data/catalog  >/dev/null 2>&1'
+            //  kubectl cp .\SearchDefinitions\CatalogAzureSearch\index.json  search-fdb679fb-dmzsq:/srv/data/catalog/index.json
+            //  restartovat pod 😉 aby tam nasiel dane data 
+        });
+
+    Target DestroyInfra => _ => _
+        .Executes(() =>
+        {
+            string prefix = AnsiConsole.Ask<string>("Enter your unique [green]prefix[/] for AZURE resources:");
+            string rsg = $"{prefix}aks-rsg";
+            var exist = Az($"group delete --name {rsg} --yes");
+        });
+
+    Target Deploy => _ => _
+        .Executes(() =>
+        {
+            AnsiConsole.Status()
+                .AutoRefresh(true)
+                .Spinner(Spinner.Known.Star)
+                .SpinnerStyle(Style.Parse("green bold"))
+                .Start("Deploying...", ctx => 
+                {
+                    AnsiConsole.MarkupLine("Start deploying...");
+                    foreach (string deployment in RootDirectory.GlobFiles("**/deployment-*.yml"))
+                    {
+                        K8($"apply -f {deployment}");
+                    }
+                    
+                    AnsiConsole.MarkupLine("Creating databases...");
+                    CreateDatabases();
+                    
+                    AnsiConsole.MarkupLine("Creating storage account tables...");
+                    CreateStorageAccountTables();
+                });
+        });
+
+    void CreateDatabases()
+    {
+        var databaseIp = GetLoadBalancerIp("database");
+        AnsiConsole.MarkupLine($"Database IP is [green]{databaseIp}[/]");
+
+        var databases = RootDirectory.GlobFiles("**/databases.db").SelectMany(p => File.ReadAllText(p).Split(","));
+        CreateDatabases(databaseIp, databases);
+    }
+    
+    void CreateStorageAccountTables()
+    {
+        var storageIp = GetLoadBalancerIp("storage");
+        AnsiConsole.MarkupLine($"Storage IP is [green]{storageIp}[/]");
+
+        var tables = RootDirectory.GlobFiles("**/tables.sa").SelectMany(p => File.ReadAllText(p).Split(","));
+        CreateStorageAccountTables(storageIp, tables);
+    }
+
+    string GetLoadBalancerIp(string serviceName)
+    {
+        var policy = Policy
+            .HandleResult<string>(string.IsNullOrEmpty)
+            .WaitAndRetry(20, retryAttempt =>
+            {
+                Logger.Warn($"==== Getting IP retry: {retryAttempt}");
+                return TimeSpan.FromSeconds(2);
+            });
+        string jsonPath = "-o jsonpath=\"{.items[0].status.loadBalancer.ingress[0].ip}\"";
+        string loadBalancerIp = policy.Execute(() =>
+            K8($"get services -l service={serviceName} {jsonPath}")
+                .FirstOrDefault().Text);
+        return loadBalancerIp;
+    }
 
     private void PublishProject(AbsolutePath projectPath)
     {
@@ -242,4 +343,42 @@ class Build : NukeBuild
             .Replace("Sample.", string.Empty)
             .Replace("ApiGateway", "Gateway")
             .ToLower();
+
+    private static void CreateStorageAccountTables(string storageIp, IEnumerable<string> tables)
+    {
+        var connectionString =
+            $"DefaultEndpointsProtocol=http;AccountName=devstoreaccount1; AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;QueueEndpoint=http://{storageIp}:10001/devstoreaccount1;TableEndpoint=http://{storageIp}:10002/devstoreaccount1;";
+        var serviceClient = new TableServiceClient(connectionString);
+
+        var policy = Policy
+            .Handle<Exception>()
+            .WaitAndRetry(20, retryAttempt =>
+            {
+                Logger.Warn($"==== Storage creating table retry: {retryAttempt}");
+                return TimeSpan.FromSeconds(5);
+            });
+
+        foreach (string tableName in tables)
+        {
+            policy.Execute(() => serviceClient.CreateTableIfNotExists(tableName));
+        }
+    }
+
+    private static void CreateDatabases(string databaseIp, IEnumerable<string> databases)
+    {
+        using var sqlConnection = new SqlConnection($"Server={databaseIp};Database=master;User Id=sa;Password=str0ngP@ass;");
+        var policy = CreateSqlRetryPolicy();
+        policy.Execute(sqlConnection.Open);
+
+        using var sqlCommand = sqlConnection.CreateCommand();
+        foreach (string database in databases)
+        {
+            string sql = @$"IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '{database}')
+  BEGIN
+    CREATE DATABASE [{database}]
+  END";
+            sqlCommand.CommandText = sql;
+            sqlCommand.ExecuteNonQuery();
+        }
+    }
 }

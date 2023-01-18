@@ -1,8 +1,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 WORKDIR /app
-EXPOSE 5100
+EXPOSE 80
 
-ENV ASPNETCORE_URLS=http://+:5100
+ENV ASPNETCORE_URLS=http://+:80
 ENV IS_DOCKER_RUN=TRUE
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build

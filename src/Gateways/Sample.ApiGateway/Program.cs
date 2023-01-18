@@ -27,7 +27,6 @@ namespace Sample.ApiGateway
                         .AddJsonFile("ocelot.json")
                         .AddEnvironmentVariables();
                 })
-                .UseStartup<Startup>()
-                .UseUrls("http://0.0.0.0:5000");
+                .UseStartup<Startup>();
     }
 }

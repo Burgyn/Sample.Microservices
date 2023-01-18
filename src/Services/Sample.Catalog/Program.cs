@@ -36,8 +36,7 @@ namespace Sample.Catalog
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>()
-                        .UseUrls("http://0.0.0.0:5200");
+                    webBuilder.UseStartup<Startup>();
                 });
     }
 }

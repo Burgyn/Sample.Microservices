@@ -1,0 +1,57 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search
+  labels:
+    app: search
+    type: sql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: search
+  template:
+    metadata:
+      labels:
+        app: eshop
+        service: search
+    spec:
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: search
+          image: tomee/azure-search-emulator
+          ports:
+            - containerPort: 443
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ASPNETCORE_URLS
+              value: "https://+:443"
+            - name: ASPNETCORE_Kestrel__Certificates__Default__Password
+              value: "password"
+            - name: ASPNETCORE_Kestrel__Certificates__Default__Path
+              value: "/srv/cert/testcert.pfx"
+          volumeMounts:
+            - name: search
+              mountPath: /srv/data              
+      volumes:
+        - name: search
+          persistentVolumeClaim:
+            claimName: mino-disk
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: search
+  labels:
+    app: eshop
+    service: search
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 433
+      targetPort: 433
+  selector:
+    service: search
